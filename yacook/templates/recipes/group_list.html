@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Записи сообщества {{ group.title }}{% endblock %}
+{% block content %}
+  <h1>{{ group.title }}</h1>
+  <p>{{ group.description }}</p>
+  {% for recipe in page_obj %}
+    {% include 'recipes/includes/recipe_card.html' with without_group_links=True %}
+    {% if not forloop.last %}<hr>{% endif %}
+  {% endfor %}
+  {% include 'recipes/includes/paginator.html' %}
+{% endblock %}
