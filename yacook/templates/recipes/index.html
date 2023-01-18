@@ -2,13 +2,10 @@
 {#{% load cache %}#}
 {% block title %}Последние опубликованные рецепты{% endblock %}
 {% block content %}
-    <h1>Последние опубликованные рецепты</h1>
-    {% include 'recipes/includes/switcher.html' %}
+  <h1>Последние опубликованные рецепты</h1>
+  {% include 'recipes/includes/switcher.html' %}
 {#  {% cache 20 index_page with page_obj%}#}
-    {% for recipe in page_obj %}
-      {% include 'recipes/includes/recipe_card.html' %}
-      {% if not forloop.last %}<hr>{% endif %}
-    {% endfor %}
+  {% include 'recipes/includes/recipe_card.html' %}
 {#  {% endcache %}#}
   {% include 'recipes/includes/paginator.html' %}
 {% endblock %}

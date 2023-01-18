@@ -1,19 +1,26 @@
 {% extends 'base.html' %}
-{% load thumbnail %}
+{% load static %}
+{% load user_filters %}
 {% block title %} {{ recipe.text|truncatechars:30 }} {% endblock %}
 {% block content %}
+  <h1>Рецепт: {{ recipe.title }}</h1>
   <div class="row">
+
     <aside class="col-12 col-md-3">
       <ul class="list-group list-group-flush">
         <li class="list-group-item">
-          Дата публикации: {{ recipe.pub_date|date:"d E Y" }}
+          {% if recipe.image %}
+            <img src="{{ recipe.image.url }}" width="350" class="img-fluid rounded-start" alt="">
+          {% else %}
+            <img src="{% static 'img/no_image.png' %}" width="350" class="img-fluid rounded-start" alt="">
+          {% endif %}
         </li>
         {% if recipe.group %}
           <li class="list-group-item">
             Группа: {{ recipe.group.title }}
             <br>
             <a href="{% url 'recipes:group_list' recipe.group.slug %}">
-              все записи группы
+              Все записи группы
             </a>
           </li>
         {% endif %}
@@ -21,20 +28,23 @@
           Автор: {{ recipe.author.get_full_name }}
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
-          Всего постов автора:  <span >{{ recipe.author.recipes.count }}</span>
+          Всего рецептов автора:  <span >{{ recipe.author.recipes.count }}</span>
+          <br>
         </li>
         <li class="list-group-item">
           <a href="{% url 'recipes:profile' recipe.author %}">
-            все посты пользователя
+            Все рецепты автора
           </a>
         </li>
       </ul>
     </aside>
+
     <article class="col-12 col-md-9">
-      {% thumbnail recipe.image "960x339" crop="center" upscale=True as im %}
-        <img class="card-img my-2" src="{{ im.url }}">
-      {% endthumbnail %}
-      <p>{{ recipe.text }}</p>
+
+        <p><b>{{ recipe|verbose_name:"description" }}:</b><br>{{ recipe.description }}</p>
+        <p><b>{{ recipe|verbose_name:"ingredients" }}:</b><br>{{ recipe.ingredients }}</p>
+        <p><b>{{ recipe|verbose_name:"technology" }}:</b><br>{{ recipe.technology }}</p>
+
       {% if recipe.author.pk == user.pk %}
         <a class="btn btn-primary" href="{% url 'recipes:recipe_edit' recipe.pk %}">
           редактировать запись
