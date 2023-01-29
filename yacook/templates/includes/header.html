@@ -1,6 +1,6 @@
 {% load static %}
 <header>
-  <nav class="navbar navbar-expand-lg navbar-light" style="background-color: lightskyblue">
+  <nav class="navbar navbar-expand-lg" style="background-color: lightskyblue">
     <div class="container">
       <a class="navbar-brand" href="{% url 'recipes:index' %}">
         <img src="{% static 'img/logo.png' %}" width="30" height="30" class="d-inline-block align-top" alt="">
@@ -12,40 +12,56 @@
 
           <ul class="nav nav-pills">
             {% with request.resolver_match.view_name as view_name %}
-              <li class="nav-item">
-                <a class="nav-link {% if view_name  == 'about:author' %}active{% endif %}"
-                   href="{% url 'about:author' %}">Об авторе сайта</a>
+
+              <form class="d-flex" role="search" action="{% url 'recipes:search' %}" method="get">
+                <input class="form-control me-2" type="text" name="s" placeholder="Ключевое слово..." aria-label="Search">
+                <button class="btn btn-outline-primary" type="submit">Поиск</button>
+              </form>
+
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  О сайте
+                </a>
+
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item {% if view_name  == 'about:author' %}active{% endif %}" href="{% url 'about:author' %}">О авторе сайта</a></li>
+                  <li><a class="dropdown-item {% if view_name  == 'about:tech' %}active{% endif %}" href="{% url 'about:tech' %}">Технологии сайта</a></li>
+                </ul>
               </li>
-              <li class="nav-item">
-                <a class="nav-link {% if view_name  == 'about:tech' %}active{% endif %}"
-                   href="{% url 'about:tech' %}">Технологии</a>
-              </li>
+
+
               {% if user.is_authenticated %}
-                <li class="nav-item">
-                  <a class="nav-link {% if view_name  == 'recipes:recipe_create' %}active{% endif %}"
-                     href="{% url 'recipes:recipe_create' %}">Новая запись</a>
+
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Пользователь: {{ user.username }}
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item {% if view_name  == 'recipes:profile' and author.pk == user.pk  %}active{% endif %}" href="{% url 'recipes:profile' user.username %}">Мои рецепты</a></li>
+                    <li><a class="dropdown-item {% if view_name  == 'users:login' %}active{% endif %}" href="{% url 'users:login' %}">Любимые рецепты</a></li>
+                    <li><a class="dropdown-item {% if view_name  == 'recipes:follow_index' %}active{% endif %}" href="{% url 'recipes:follow_index' %}">Любимые авторы</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item {% if view_name  == 'recipes:recipe_create' %}active{% endif %}" href="{% url 'recipes:recipe_create' %}">Добавить новый рецепт</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item {% if view_name  == 'users:password_change_form' %}active{% endif %}" href="{% url 'users:password_change_form' %}">Изменить пароль</a></li>
+                    <li><a class="dropdown-item {% if view_name  == 'users:logout' %}active{% endif %}" href="{% url 'users:logout' %}">Выйти</a></li>
+
+                  </ul>
                 </li>
-                <li class="nav-item">
-                  <a class="nav-link link-light {% if view_name  == 'users:password_change_form' %}active{% endif %}"
-                     href="{% url 'users:password_change_form' %}">Изменить пароль</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link link-light {% if view_name  == 'users:logout' %}active{% endif %}"
-                     href="{% url 'users:logout' %}">Выйти</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link link-dark {% if view_name  == 'recipes:profile' and author.pk == user.pk  %}active{% endif %}"
-                     href="{% url 'recipes:profile' user.username %}">Пользователь: {{ user.username }}</a>
-                </li>
+
                 {% else %}
-                <li class="nav-item">
-                  <a class="nav-link link-light {% if view_name  == 'users:login' %}active{% endif %}"
-                     href="{% url 'users:login' %}">Войти</a>
+
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Войти
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item {% if view_name  == 'users:login' %}active{% endif %}" href="{% url 'users:login' %}">Войти</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item {% if view_name  == 'users:signup' %}active{% endif %}" href="{% url 'users:signup' %}">Зарегистрироваться</a></li>
+                  </ul>
                 </li>
-                <li class="nav-item">
-                  <a class="nav-link link-light {% if view_name  == 'users:signup' %}active{% endif %}"
-                     href="{% url 'users:signup' %}">Регистрация</a>
-                </li>
+
               {% endif %}
             {% endwith %}
           </ul>

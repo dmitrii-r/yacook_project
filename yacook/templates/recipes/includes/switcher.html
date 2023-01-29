@@ -1,15 +1,38 @@
-{% if user.is_authenticated %}
-  <div class="row my-3">
-    <ul class="nav nav-tabs">
+<div class="row my-3">
+  <ul class="nav nav-tabs">
+    {% with request.resolver_match.view_name as view_name %}
       <li class="nav-item">
-        <a class="nav-link {% if index %}active{% endif %}" href="{% url 'recipes:index' %}">
-          Все авторы
+        <a class="nav-link {% if view_name  ==  'recipes:index' %}active{% endif %}" href="{% url 'recipes:index' %}">
+          Все рецепты
         </a>
       </li>
-      <li class="nav-item"><a class="nav-link {% if follow %}active{% endif %}" href="{% url 'recipes:follow_index' %}">
-          Избранные авторы
+
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle {% if view_name  == 'recipes:group_list' %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Рецепты по группе
         </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+
+          {% for group in groups %}
+            <li><a class="dropdown-item" href="{% url 'recipes:group_list' group.slug %}">{{ group.title }}</a></li>
+          {% endfor %}
+
+        </ul>
       </li>
-    </ul>
-  </div>
-{% endif %}
+
+      {% if user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link {% if view_name  ==  'recipes:follow_index' %}active{% endif %}" href="{% url 'recipes:follow_index' %}">
+            Любимые авторы
+          </a>
+        </li>
+
+{#        <li class="nav-item">#}
+{#          <a class="nav-link {% if view_name  ==  'recipes:favorite_index' %}active{% endif %}" href="{% url 'recipes:favorite_index' %}">#}
+{#            Любимые рецепты#}
+{#          </a>#}
+{#        </li>#}
+      {% endif %}
+    {% endwith %}
+  </ul>
+</div>

@@ -2,35 +2,43 @@
 <nav aria-label="Page navigation" class="my-5">
   <ul class="pagination">
     {% if page_obj.has_previous %}
-      <li class="page-item"><a class="page-link" href="?page=1">Первая</a></li>
+
       <li class="page-item">
-        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
-          Предыдущая
+        <a class="page-link" href="?{{ s }}page=1" aria-label="Next">
+          <span aria-hidden="true">&Ll;</span>
+        </a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="?{{ s }}page={{ page_obj.previous_page_number }}" aria-label="Previous">
+          <span aria-hidden="true">&ll;</span>
         </a>
       </li>
     {% endif %}
+
     {% for i in page_obj.paginator.page_range %}
         {% if page_obj.number == i %}
           <li class="page-item active">
             <span class="page-link">{{ i }}</span>
           </li>
-        {% else %}
+        {% elif i > page_obj.number|add:-3 and i < page_obj.number|add:3 %}
           <li class="page-item">
-            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+            <a class="page-link" href="?{{ s }}page={{ i }}">{{ i }}</a>
           </li>
         {% endif %}
     {% endfor %}
+
     {% if page_obj.has_next %}
       <li class="page-item">
-        <a class="page-link" href="?page={{ page_obj.next_page_number }}">
-          Следующая
+        <a class="page-link" href="?{{ s }}page={{ page_obj.next_page_number }}" aria-label="Next">
+          <span aria-hidden="true">&gg;</span>
         </a>
       </li>
       <li class="page-item">
-        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">
-          Последняя
+        <a class="page-link" href="?{{ s }}page={{ page_obj.paginator.num_pages }}" aria-label="Next">
+          <span aria-hidden="true">&Gg;</span>
         </a>
       </li>
+
     {% endif %}
   </ul>
 </nav>

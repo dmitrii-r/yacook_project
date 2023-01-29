@@ -1,10 +1,11 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db.models import Q, Count
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import RecipeForm, CommentForm
-from .models import Group, Recipe, User, Follow
+from .models import Group, Recipe, User, Follow, Comment
 
 
 def get_paginator(page_number, recipe):
@@ -14,13 +15,22 @@ def get_paginator(page_number, recipe):
     return page_obj
 
 
+def get_groups():
+    """Функция получения групп."""
+    return Group.objects.values('title', 'slug')
+
+
 def index(request):
     """Главная страница."""
     template = 'recipes/index.html'
     recipes = Recipe.objects.select_related('author', 'group')
+    groups = get_groups()
     page_number = request.GET.get('page')
     page_obj = get_paginator(page_number, recipes)
-    context = {'page_obj': page_obj}
+    context = {
+        'groups': groups,
+        'page_obj': page_obj
+    }
     return render(request, template, context)
 
 
@@ -28,10 +38,12 @@ def group_list(request, slug):
     """Страница группы рецептов."""
     template = 'recipes/group_list.html'
     group = get_object_or_404(Group, slug=slug)
+    groups = get_groups()
     recipes = group.recipes.select_related('author')
     page_number = request.GET.get('page')
     page_obj = get_paginator(page_number, recipes)
     context = {
+        'groups': groups,
         'group': group,
         'page_obj': page_obj,
     }
@@ -46,12 +58,16 @@ def profile(request, username):
         request.user.is_authenticated
         and Follow.objects.filter(author=author, user=request.user).exists()
     )
+    follower = Follow.objects.filter(author=author).aggregate(Count('user'))
     recipes = author.recipes.select_related('group')
+    groups = get_groups()
     page_number = request.GET.get('page')
     page_obj = get_paginator(page_number, recipes)
     context = {
         'author': author,
         'following': following,
+        'follower': follower,
+        'groups': groups,
         'page_obj': page_obj,
     }
     return render(request, template, context)
@@ -67,6 +83,24 @@ def recipe_detail(request, recipe_id):
         'recipe': recipe,
         'form': form,
         'comments': comments,
+    }
+    return render(request, template, context)
+
+
+def search(request):
+    """Страница отображения результатов поискового запроса."""
+    template = 'recipes/search.html'
+    data_search = request.GET.get('s')
+    recipes = Recipe.objects.select_related('author', 'group').filter(
+        Q(title__iregex=data_search) |
+        Q(ingredients__iregex=data_search)
+    )
+    page_number = request.GET.get('page')
+    page_obj = get_paginator(page_number, recipes)
+    context = {
+        'data_search': data_search,
+        'page_obj': page_obj,
+        's': f's={data_search}&'
     }
     return render(request, template, context)
 
@@ -113,9 +147,19 @@ def recipe_edit(request, recipe_id):
     return render(request, template, context)
 
 
+@login_required()
+def recipe_delete(request, recipe_id):
+    """Функция удаления рецепта пользователем."""
+    recipe = get_object_or_404(Recipe, pk=recipe_id)
+    if request.method == 'POST' and request.user == recipe.author:
+        recipe.delete()
+        return redirect('recipes:profile', request.user)
+    return redirect('recipes:recipe_detail', recipe_id)
+
+
 @login_required
 def add_comment(request, recipe_id):
-    """Функция для обработки отправленного комментария."""
+    """Функция для добавления нового комментария."""
     recipe = get_object_or_404(Recipe, pk=recipe_id)
     form = CommentForm(request.POST or None)
     if form.is_valid():
@@ -127,13 +171,46 @@ def add_comment(request, recipe_id):
 
 
 @login_required
+def edit_comment(request, recipe_id, comment_id):
+    """Функция для редактирования комментария."""
+    # recipe = get_object_or_404(Recipe, pk=recipe_id)
+    comment = get_object_or_404(Comment, pk=comment_id)
+    form = CommentForm(
+        request.POST or None,
+        files=request.FILES or None,
+        instance=comment
+    )
+    if form.is_valid():
+        # comment = form.save(commit=False)
+        # comment.author = request.user
+        # comment.recipe = recipe
+        comment.save()
+    return redirect('recipes:recipe_detail', recipe_id=recipe_id)
+
+
+@login_required
+def delete_comment(request, recipe_id, comment_id):
+    """Функция для удаления комментария."""
+    comment = get_object_or_404(Comment, pk=comment_id)
+    if request.method == 'POST' and request.user == comment.author:
+        comment.delete()
+    return redirect('recipes:recipe_detail', recipe_id=recipe_id)
+
+
+@login_required
 def follow_index(request):
     """Страница с подписками пользователя."""
     template = 'recipes/follow.html'
-    recipes = Recipe.objects.filter(author__following__user=request.user)
+    recipes = Recipe.objects.select_related('author', 'group').filter(author__following__user=request.user)
+    following = User.objects.all().filter(following__user=request.user)
+    groups = get_groups()
     page_number = request.GET.get('page')
     page_obj = get_paginator(page_number, recipes)
-    context = {'page_obj': page_obj}
+    context = {
+        'groups': groups,
+        'following': following,
+        'page_obj': page_obj
+    }
     return render(request, template, context)
 
 

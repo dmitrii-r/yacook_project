@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Результат поиска{% endblock %}
+{% block content %}
+  <h1>Результат поиска по запросу: {{ data_search }}</h1>
+  <h3>Всего найдено рецептов: {{ page_obj.paginator.count }} </h3>
+  <hr>
+  {% include 'recipes/includes/switcher.html' %}
+  {% include 'recipes/includes/recipe_card.html' %}
+  {% include 'recipes/includes/paginator.html' %}
+{% endblock %}

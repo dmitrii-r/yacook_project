@@ -1,11 +1,14 @@
 {% extends 'base.html' %}
-{% block title %}Подписки на авторов{% endblock %}
+{% block title %}Любимые авторы{% endblock %}
 {% block content %}
-  <h1>Мои подписки</h1>
+  <h1>Все рецепты любимых авторов:</h1>
+  <h3>{% for author in following %}
+    <a href="{% url 'recipes:profile' author %}">{{ author.get_full_name }}</a>
+    {% if not forloop.last %} , {% endif %}
+  {% endfor %}</h3>
+  <h3>Всего рецептов: {{ page_obj.paginator.count }}</h3>
+  <hr>
   {% include 'recipes/includes/switcher.html' %}
-  {% for recipe in page_obj %}
-    {% include 'recipes/includes/recipe_card.html' %}
-    {% if not forloop.last %}<hr>{% endif %}
-  {% endfor %}
+  {% include 'recipes/includes/recipe_card.html' %}
   {% include 'recipes/includes/paginator.html' %}
 {% endblock %}

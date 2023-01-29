@@ -2,7 +2,9 @@
 {% load user_filters %}
 {% for recipe in page_obj %}
   <article>
+    <h3>{{ recipe.title }}</h3>
     <div class="card mb-3">
+
       <div class="row g-0">
         <div class="col-md-4">
           {% if recipe.image %}
@@ -13,25 +15,26 @@
         </div>
         <div class="col-md-8">
           <div class="card-body">
-            <p class="card-title"><b>{{ recipe|verbose_name:"title" }}:</b><br>{{ recipe.title }}</p>
-            <p class="card-text"><b>{{ recipe|verbose_name:"description" }}:</b><br>{{ recipe.description }}</p>
+
+            <p class="card-text"><b>{{ recipe|verbose_name:"description" }}:</b><br>{{ recipe.description|linebreaksbr }}</p>
             <a href="{% url 'recipes:recipe_detail' recipe.pk %}">Подробная информация</a>
             <br>
             {% if recipe.group and not without_group_links%}
               <a href="{% url 'recipes:group_list' recipe.group.slug %}">Группа: {{ recipe.group }}</a>
+              <br>
+            {% endif %}
+
+            {% if not without_profile_links %}
+              <a href="{% url 'recipes:profile' recipe.author %}">Автор: {{ recipe.author.get_full_name }}</a>
             {% endif %}
           </div>
         </div>
       </div>
     </div>
-    <ul>
-      <li>
-        Автор: {{ recipe.author.get_full_name }}.
-        {% if not without_profile_links %}
-          <a href="{% url 'recipes:profile' recipe.author %}">Все рецепты автора</a>
-        {% endif %}
-      </li>
-    </ul>
+
   </article>
 {% if not forloop.last %}<hr>{% endif %}
+{% empty %}
+  <h3>Ничего не найдено!!!</h3>
+  Попробуйте изменить запрос.
 {% endfor %}

@@ -1,21 +1,24 @@
 {% extends 'base.html' %}
-{% block title %}Профайл пользователя {{ author.get_full_name }}{% endblock %}
+{% block title %}Рецепты пользователя: {{ author.get_full_name }}{% endblock %}
 {% block content %}
-  <div class="mb-5">
-    <h1>Все рецепты пользователя: {{ author.get_full_name }} </h1>
+    <h1>Рецепты пользователя: {{ author.get_full_name }} </h1>
     <h3>Всего рецептов: {{ page_obj.paginator.count }} </h3>
+    <h3>Всего подписчиков: {{ follower.user__count }} </h3>
     {% if user.is_authenticated and user != author %}
       {% if following %}
-      <a class="btn btn-lg btn-light" href="{% url 'recipes:profile_unfollow' author.username %}" role="button">
-        Отписаться
-      </a>
-    {% else %}
+        <h3>Вы подписаны на автора</h3>
+        <hr>
+        <a class="btn btn-lg btn-light" href="{% url 'recipes:profile_unfollow' author.username %}" role="button">
+          Отписаться
+        </a>
+      {% else %}
+        <hr>
         <a class="btn btn-lg btn-primary" href="{% url 'recipes:profile_follow' author.username %}" role="button">
           Подписаться
         </a>
      {% endif %}
     {% endif %}
-  </div>
+  {% include 'recipes/includes/switcher.html' %}
   {% include 'recipes/includes/recipe_card.html' with without_profile_links=True %}
   {% include 'recipes/includes/paginator.html' %}
 {% endblock %}

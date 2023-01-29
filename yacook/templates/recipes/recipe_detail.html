@@ -17,40 +17,62 @@
         </li>
         {% if recipe.group %}
           <li class="list-group-item">
-            Группа: {{ recipe.group.title }}
-            <br>
             <a href="{% url 'recipes:group_list' recipe.group.slug %}">
-              Все записи группы
+              Группа: {{ recipe.group.title }}
             </a>
           </li>
         {% endif %}
         <li class="list-group-item">
-          Автор: {{ recipe.author.get_full_name }}
+          <a href="{% url 'recipes:profile' recipe.author %}">
+            Автор: {{ recipe.author.get_full_name }}
+          </a>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Всего рецептов автора:  <span >{{ recipe.author.recipes.count }}</span>
           <br>
-        </li>
-        <li class="list-group-item">
-          <a href="{% url 'recipes:profile' recipe.author %}">
-            Все рецепты автора
-          </a>
         </li>
       </ul>
     </aside>
 
     <article class="col-12 col-md-9">
 
-        <p><b>{{ recipe|verbose_name:"description" }}:</b><br>{{ recipe.description }}</p>
-        <p><b>{{ recipe|verbose_name:"ingredients" }}:</b><br>{{ recipe.ingredients }}</p>
-        <p><b>{{ recipe|verbose_name:"technology" }}:</b><br>{{ recipe.technology }}</p>
+        <p><b>{{ recipe|verbose_name:"description" }}:</b><br>{{ recipe.description|linebreaksbr }}</p>
+        <p><b>{{ recipe|verbose_name:"ingredients" }}:</b><br>{{ recipe.ingredients|linebreaksbr }}</p>
+        <p><b>{{ recipe|verbose_name:"technology" }}:</b><br>{{ recipe.technology|linebreaksbr }}</p>
 
       {% if recipe.author.pk == user.pk %}
         <a class="btn btn-primary" href="{% url 'recipes:recipe_edit' recipe.pk %}">
-          редактировать запись
+          Редактировать запись
         </a>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+          Удалить запись
+        </button>
+
       {% endif %}
+      <hr>
       {% include 'recipes/includes/recipe_comments.html' %}
     </article>
   </div>
+
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="deleteModalLabel">Удалить рецепт?</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Вы действительно хотите удалить рецепт: {{ recipe.title }}?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <form action="{% url 'recipes:recipe_delete' recipe.pk %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-danger">Удалить рецепт</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock %}
