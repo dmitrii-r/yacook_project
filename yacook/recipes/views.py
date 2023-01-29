@@ -173,7 +173,6 @@ def add_comment(request, recipe_id):
 @login_required
 def edit_comment(request, recipe_id, comment_id):
     """Функция для редактирования комментария."""
-    # recipe = get_object_or_404(Recipe, pk=recipe_id)
     comment = get_object_or_404(Comment, pk=comment_id)
     form = CommentForm(
         request.POST or None,
@@ -181,9 +180,6 @@ def edit_comment(request, recipe_id, comment_id):
         instance=comment
     )
     if form.is_valid():
-        # comment = form.save(commit=False)
-        # comment.author = request.user
-        # comment.recipe = recipe
         comment.save()
     return redirect('recipes:recipe_detail', recipe_id=recipe_id)
 

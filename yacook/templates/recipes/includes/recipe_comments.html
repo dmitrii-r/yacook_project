@@ -1,3 +1,4 @@
+{% load static %}
 {% if user.is_authenticated %}
   <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCommentModal" href="#">Добавить комментарий</button>
   {% include "recipes/includes/modals/add_comment.html" %}
@@ -11,40 +12,33 @@
             <div class="media-body">
 
               <div class="row">
-                <div class="col-11">
+                <div class="col-10">
                   <h5 class="mt-0">
                     <a href="{% url 'recipes:profile' comment.author.username %}">
-                      {{ comment.author.get_full_name }} (id-{{ comment.id }})
+                      {{ comment.author.get_full_name }}
                     </a>
                   </h5>
                 </div>
 
-                <div class="col-1">
+                <div class="col-2">
                   {% if user.pk == comment.author.pk %}
-                    <div class="btn-group dropstart">
-                      <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                      </button>
-                      <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editCommentModal" href="#">Редактировать</a></li>
-                        <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#deleteCommentModal" href="#">Удалить</a></li>
-                      </ul>
-                      {% include "recipes/includes/modals/edit_comment.html" %}
-                      {% include "recipes/includes/modals/delete_comment.html" %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                      <div class="btn-group dropstart">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editCommentModal" data-bs-whatever="{{ comment.text }}" href="#">Редактировать</a></li>
+                          <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#deleteComment{{ comment.id }}Modal" href="#">Удалить</a></li>
+                        </ul>
+                        {% include "recipes/includes/modals/edit_comment.html" %}
+                        {% include "recipes/includes/modals/delete_comment.html" %}
+                        <script src="{% static 'js/modal.js' %}"></script>
+                      </div>
                     </div>
                   {% endif %}
                 </div>
-
-                <p>{{ comment.text }}</p>
-
+                <p> (id-{{ comment.id }}) - {{ comment.text }}</p>
               </div>
-
-{#              <form action="{% url 'recipes:delete_comment' recipe.id comment.pk %}" method="post" enctype="multipart/form-data">#}
-{#                {% csrf_token %}#}
-{#                {% include "modals/delete_comment.html" %}#}
-{#                <button type="button" class="btn btn-primary"#}
-{#                        data-bs-toggle="modal" data-bs-target="#deleteCommentModal">Удалить</button>#}
-{#              </form>#}
-
             </div>
           </div>
           {% if not forloop.last %}<hr>{% endif %}
@@ -53,6 +47,8 @@
     </div>
   {% endif %}
 {% endif %}
+
+
 
 
 
