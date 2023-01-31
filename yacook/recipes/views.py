@@ -78,7 +78,7 @@ def recipe_detail(request, recipe_id):
     template = 'recipes/recipe_detail.html'
     recipe = get_object_or_404(Recipe.objects.select_related('author'), pk=recipe_id)
     form = CommentForm()
-    comments = recipe.comments.select_related('recipe')
+    comments = recipe.comments.select_related('recipe', 'author')
     context = {
         'recipe': recipe,
         'form': form,
@@ -171,17 +171,23 @@ def add_comment(request, recipe_id):
 
 
 @login_required
-def edit_comment(request, recipe_id, comment_id):
+def edit_comment(request, comment_id):
     """Функция для редактирования комментария."""
-    comment = get_object_or_404(Comment, pk=comment_id)
+    template = 'recipes/edit_comment.html'
+    comment = get_object_or_404(Comment.objects.select_related('author'), pk=comment_id)
+    if request.user != comment.author:
+        return redirect('recipes:recipe_detail', comment.recipe.pk)
     form = CommentForm(
-        request.POST or None,
-        files=request.FILES or None,
-        instance=comment
+        instance=comment,
+        data=request.POST or None
     )
+    context = {
+        'form': form
+    }
     if form.is_valid():
-        comment.save()
-    return redirect('recipes:recipe_detail', recipe_id=recipe_id)
+        form.save()
+        return redirect('recipes:recipe_detail', comment.recipe.pk)
+    return render(request, template, context)
 
 
 @login_required
