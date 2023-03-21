@@ -17,13 +17,16 @@ def get_paginator(page_number, recipe):
 
 def get_groups():
     """Функция получения групп."""
-    return Group.objects.values('title', 'slug')
+    groups = Group.objects.values('title', 'slug')
+    return groups
 
 
 def index(request):
     """Главная страница."""
     template = 'recipes/index.html'
-    recipes = Recipe.objects.select_related('author', 'group')
+    recipes = Recipe.objects.annotate(
+        num_comments=Count('comments')
+    ).select_related('author', 'group').order_by('-pub_date')
     groups = get_groups()
     page_number = request.GET.get('page')
     page_obj = get_paginator(page_number, recipes)
@@ -39,7 +42,7 @@ def group_list(request, slug):
     template = 'recipes/group_list.html'
     group = get_object_or_404(Group, slug=slug)
     groups = get_groups()
-    recipes = group.recipes.select_related('author')
+    recipes = group.recipes.select_related('author').annotate(num_comments=Count('comments')).order_by('-pub_date')
     page_number = request.GET.get('page')
     page_obj = get_paginator(page_number, recipes)
     context = {
@@ -59,7 +62,7 @@ def profile(request, username):
         and Follow.objects.filter(author=author, user=request.user).exists()
     )
     follower = Follow.objects.filter(author=author).aggregate(Count('user'))
-    recipes = author.recipes.select_related('group')
+    recipes = author.recipes.select_related('group').annotate(num_comments=Count('comments')).order_by('-pub_date')
     groups = get_groups()
     page_number = request.GET.get('page')
     page_obj = get_paginator(page_number, recipes)
@@ -90,15 +93,17 @@ def recipe_detail(request, recipe_id):
 def search(request):
     """Страница отображения результатов поискового запроса."""
     template = 'recipes/search.html'
+    groups = get_groups()
     data_search = request.GET.get('s')
     recipes = Recipe.objects.select_related('author', 'group').filter(
         Q(title__iregex=data_search) |
         Q(ingredients__iregex=data_search)
-    )
+    ).annotate(num_comments=Count('comments')).order_by('-pub_date')
     page_number = request.GET.get('page')
     page_obj = get_paginator(page_number, recipes)
     context = {
         'data_search': data_search,
+        'groups': groups,
         'page_obj': page_obj,
         's': f's={data_search}&'
     }

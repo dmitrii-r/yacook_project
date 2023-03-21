@@ -38,7 +38,6 @@
                   </a>
                   <ul class="dropdown-menu">
                     <li><a class="dropdown-item {% if view_name  == 'recipes:profile' and author.pk == user.pk  %}active{% endif %}" href="{% url 'recipes:profile' user.username %}">Мои рецепты</a></li>
-                    <li><a class="dropdown-item {% if view_name  == 'users:login' %}active{% endif %}" href="{% url 'users:login' %}">Любимые рецепты</a></li>
                     <li><a class="dropdown-item {% if view_name  == 'recipes:follow_index' %}active{% endif %}" href="{% url 'recipes:follow_index' %}">Любимые авторы</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item {% if view_name  == 'recipes:recipe_create' %}active{% endif %}" href="{% url 'recipes:recipe_create' %}">Добавить новый рецепт</a></li>

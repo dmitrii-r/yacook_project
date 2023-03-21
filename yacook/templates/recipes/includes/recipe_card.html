@@ -26,7 +26,13 @@
 
             {% if not without_profile_links %}
               <a href="{% url 'recipes:profile' recipe.author %}">Автор: {{ recipe.author.get_full_name }}</a>
+              <br>
             {% endif %}
+
+            {% if recipe.num_comments %}
+              <a href="{% url 'recipes:recipe_detail' recipe.pk %}">Количество комментариев: {{ recipe.num_comments }}</a>
+            {% endif %}
+
           </div>
         </div>
       </div>

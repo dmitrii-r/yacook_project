@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-load_dotenv(os.path.join(BASE_DIR, 'keys.env'))
-SECRET_KEY = os.environ.get("SECRET_KEY")
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 DEBUG = True
 
